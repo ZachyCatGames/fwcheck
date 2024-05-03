@@ -211,6 +211,19 @@ function both_src_to_dst_proto_port() {
 
 }
 
+function src_to_dst_spoofed_udp_port() {
+	DESIRE=$FAIL
+	SOURCE=$1
+	DEST=$2
+	UPORT=$3
+
+	echo -n "Test $TESTS: $SOURCE -> $DEST on udp port $UPORT with spoofed IP... "
+
+	ssh $SOURCE "cd fwcheck && sleep 5 && sudo python3 spooftalk.sh $DEST $DEST 0 $UPORT abcdefghijklmnopqrstuvwxyz" &> /dev/null &
+
+	do_test $QUIT_ON_FAIL $DESIRE $DEST "cd fwcheck && sudo ./listen.sh -p $UPORT -u"
+}
+
 function src_to_dst_tcp_port() {
 
 	# use this function when there is already a TCP service running
@@ -227,6 +240,7 @@ function src_to_dst_tcp_port() {
 
 }
 
+
 function inc_tests() {
 	TESTS=$((TESTS + 1))
 }
@@ -234,6 +248,8 @@ function inc_tests() {
 function inc_passed() {
 	PASSED=$((PASSED + 1))
 }
+
+inc_tests && src_to_dst_spoofed_udp_port client server 10000 && inc_passed
 
 echo "(3.1) Inbound TCP connections to server on standard ports for OpenSSH, Apache, and MySQL:"
 inc_tests && client_to_server_tcp22 && inc_passed

@@ -40,11 +40,24 @@ checksum = ~checksum & 0xFFFF
 ip_hdr = struct.pack("!BBHHHBBHII", byte0, byte1, total_size, ident, fragment, ttl, protocol, checksum, src_addr, dst_addr)
 assert(len(ip_hdr) == 20)
 
+# Calculate checksum.
+udp_len = 8 + len(data)
+checksum = (src_addr >> 16) + (src_addr & 0xFFFF) + (dst_addr >> 16) + (dst_addr & 0xFFFF) + protocol + udp_len * 2 + src_port + dst_port
+for i in range(0, len(data) & ~1, 2):
+    num = struct.unpack("!H", data[i:i+2])[0]
+    checksum += num
+if(len(data) & 1):
+    checksum += struct.unpack("!H", data[i:i+1] + '\x00')[0]
+while(checksum > 0xFFFF):
+    top = checksum >> 16
+    checksum = (checksum & 0xFFFF) + top
+checksum = ~checksum & 0xFFFF
+
 # Pack udp header.
 # https://en.wikipedia.org/wiki/User_Datagram_Protocol#UDP_datagram_structure
 # NOTE: We aren't filling the checksum field since it appear netcat can still receive messages fine without it.
 udp_size = 0x8 + len(data)
-udp_hdr = struct.pack("!HHHH", src_port, dst_port, udp_size, 0)
+udp_hdr = struct.pack("!HHHH", src_port, dst_port, udp_size, checksum)
 
 # Pack whole packet.
 packet = ip_hdr + udp_hdr + data

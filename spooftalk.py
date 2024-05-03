@@ -4,10 +4,15 @@ import sys
 import struct
 
 # Get arguments.
-dst_ip = sys.argv[1]
-dst_port = int(sys.argv[2])
+src = sys.argv[1]
+dst = sys.argv[2]
 src_port = int(sys.argv[3])
-data = bytes(sys.argv[4], "ascii")
+dst_port = int(sys.argv[4])
+data = bytes(sys.argv[5], "ascii")
+
+# Resolve dst.
+dst_ip = socket.getaddrinfo(dst, 0)[0][4][0]
+src_ip = socket.getaddrinfo(src, 0)[0][4][0]
 
 # Setup header elements.
 # https://en.wikipedia.org/wiki/Internet_Protocol_version_4#Header
@@ -20,8 +25,8 @@ ident      = 0 # bytes 4 & 5.
 fragment   = 0x1 << 14 # bytes 6 & 7
 ttl        = 64 # byte 8
 protocol   = socket.IPPROTO_UDP # byte 9
-src_addr   = struct.unpack("!I", socket.inet_aton("127.0.0.1"))[0] # bytes 12 - 15
-dst_addr   = src_addr # bytes 16 - 19
+src_addr   = struct.unpack("!I", socket.inet_aton(src_ip))[0] # bytes 12 - 15
+dst_addr   = struct.unpack("!I", socket.inet_aton(dst_ip))[0] # bytes 16 - 19
 
 # Calculate checksum.
 checksum = ((byte0 << 8) | byte1) + total_size + ident + fragment + ((ttl << 8) | protocol) + (src_addr >> 16) * 2 + (src_addr & 0xFFFF) * 2

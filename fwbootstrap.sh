@@ -6,7 +6,7 @@ echo 'Checking on status of fwcheck install...'
 if [[ ! -d ~/fwcheck ]]
 then echo '~/fwcheck does not exist -- cloning...'
 	cd ~
-	if ! git clone https://github.com/pahp/fwcheck.git
+	if ! git clone https://github.com/ZachyCatGames/fwcheck.git
 	then
 		echo "Couldn't clone git repository. Is firewall too restrictive?"
 		echo "If names cannot resolve, you may be restricting the experiment network."
@@ -17,7 +17,7 @@ then echo '~/fwcheck does not exist -- cloning...'
 else echo 'fwcheck exists!' 
 	echo 'Safety check: Is it our git repo?'
 	cd ~/fwcheck
-	if grep https://github.com/pahp/fwcheck.git .git/config
+	if grep https://github.com/ZachyCatGames/fwcheck.git .git/config
 	then echo 'Seems to be!'
 
 		# squash annoying git messages

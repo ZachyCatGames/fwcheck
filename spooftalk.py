@@ -20,7 +20,7 @@ version    = 4 # byte 0 half 0
 ihl        = 5 # byte 0 half 1
 byte0      = version << 4 | ihl
 byte1      = 0 # byte 1
-total_size = 0x20 + 0x8 + len(data) # bytes 2 & 3. sizeof(ip_hdr) + sizeof(udp_hdr) + sizeof(data)
+total_size = 20 + 0x8 + len(data) # bytes 2 & 3. sizeof(ip_hdr) + sizeof(udp_hdr) + sizeof(data)
 ident      = 0 # bytes 4 & 5.
 fragment   = 0x1 << 14 # bytes 6 & 7
 ttl        = 64 # byte 8
@@ -34,6 +34,7 @@ checksum = ((byte0 << 8) | byte1) + total_size + ident + fragment + ((ttl << 8) 
 while(checksum > 0xFFFF):
     top = checksum >> 16
     checksum = (checksum & 0xFFFF) + top
+checksum = ~checksum & 0xFFFF
 
 # Pack ip header.
 ip_hdr = struct.pack("!BBHHHBBHII", byte0, byte1, total_size, ident, fragment, ttl, protocol, checksum, src_addr, dst_addr)

@@ -29,7 +29,8 @@ src_addr   = struct.unpack("!I", socket.inet_aton(src_ip))[0] # bytes 12 - 15
 dst_addr   = struct.unpack("!I", socket.inet_aton(dst_ip))[0] # bytes 16 - 19
 
 # Calculate checksum.
-checksum = ((byte0 << 8) | byte1) + total_size + ident + fragment + ((ttl << 8) | protocol) + (src_addr >> 16) * 2 + (src_addr & 0xFFFF) * 2
+checksum = ((byte0 << 8) | byte1) + total_size + ident + fragment + ((ttl << 8) | protocol) + (src_addr >> 16) + (src_addr & 0xFFFF) + \
+            (dst_addr >> 16) + (dst_addr & 0xFFFF)
 while(checksum > 0xFFFF):
     top = checksum >> 16
     checksum = (checksum & 0xFFFF) + top
